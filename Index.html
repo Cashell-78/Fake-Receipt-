@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Display</title>
+    <style>
+    
+
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&family=Phudu:wght@300..900&family=Saira:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+
+
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding-bottom: 20px;
+            padding-right: 20px;
+            padding-left: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            
+            
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: none;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%; /* Allow the output to be responsive */
+            width: fit-content; /* Width based on content */
+        }
+        input, select {
+            width: 100%; /* Make inputs full width */
+            padding: 5px; /* Add some padding for better appearance */
+            box-sizing: border-box; /* Include padding in width */
+            margin-bottom: 10px; /* Space between inputs */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 8px 15px;
+            font-size: 0.9em; /* Reduced font size */
+            text-align: right; /* Align text to the right */
+        }
+        td:first-child {
+            font-weight: bold;
+            text-align: left;
+            width: 35%; /* Align label to the left */
+        }
+        .separator {
+            border-top: 1px solid #ddd;
+            margin: 10px 0; /* Space around the line */
+        }
+        .note {
+            text-align: center; /* Centered text */
+            font-size: 0.9em; /* Slightly smaller font size */
+            margin-top: 10px; /* Space above the note */
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px; /* Space above the button */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .line{
+            width: 80%;
+            height: 1px;
+            background: grey;
+            margin-left: 10%;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+        #receiptContent{
+            font-family: "Oxanium", serif;
+            font-optical-sizing: auto;
+            font-weight: <weight>;
+            font-style: normal;
+            padding-bottom: 20px;
+        }
+        .img{
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .img img{
+            width: 100px;
+        }
+        .top p{
+            text-align: center;
+            margin-top: -15px;
+            color: grey;
+            font-size: 13px;
+        }
+       .top h2{
+           margin-top: -4px;
+            text-align: center;
+            color: green;
+        }
+        .note{
+            font-size: 12px;
+            color: grey;
+            margin-top: 30px;
+        }
+        /* Responsive adjustments */
+        @media screen and (max-width: 400px) {
+            #output td {
+                font-size: 0.8em; /* Further reduce font size on smaller screens */
+            }
+            .container {
+                padding: 15px; /* Reduce container padding on smaller screens */
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2 id="formTitle">Enter Details</h2>
+    <form id="infoForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" required><br>
+
+        <label for="client">Account number:</label><br>
+        <input type="number" id="client" required><br>
+
+        <label for="amount">Amount:</label><br>
+        <input type="number" id="amount" required><br>
+
+        <label for="currencySymbol">Currency Symbol:</label><br>
+        <input type="text" id="currencySymbol" placeholder="Enter your currency symbol" required><br>
+
+        <label for="bank">Bank:</label><br>
+        <input type="text" id="bank" required><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" required><br>
+
+        <label for="socialMedia">Social Media:</label><br>
+        <input type="text" id="socialMedia" required><br>
+
+        
+        <label for="language">Language:</label><br>
+<select id="language" onchange="changeLanguage()">
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="mx">Español (México)</option>
+    <option value="fr">Français</option>
+    <option value="de">Deutsch</option>
+    <option value="it">Italiano</option>
+    <option value="pt">Português</option>
+    <option value="zh">中文 (简体)</option>
+    <option value="ru">Русский</option>
+    <option value="ar">العربية</option>
+    <option value="ja">日本語</option>
+    <option value="ko">한국어</option>
+</select>
+        <br>
+
+        <button type="button" onclick="generateInfo()">Generate</button>
+        <button type="button" id="downloadBtn" style="display:none;" onclick="downloadReceipt()">Download Receipt</button>
+    </form>
+
+    <div id="output"></div>
+</div>
+
+<script>
+    let translations = {
+        en: {
+            title: "Enter Details",
+            name: "Name",
+            client: "Account Number",
+            amount: "Amount",
+            currencySymbol: "Currency Symbol",
+            bank: "Bank",
+            email: "Email",
+            socialMedia: "Social Media",
+            language: "Language",
+            generate: "Generate",
+            download: "Download Receipt",
+            note: "Your client should add this email",
+            transaction: "Transaction Number",
+            date: "Date"
+        },
+        es: {
+            title: "Ingrese los detalles",
+            name: "Nombre",
+            client: "Número de cuenta",
+            amount: "Cantidad",
+            currencySymbol: "Símbolo de moneda",
+            bank: "Banco",
+            email: "Correo electrónico",
+            socialMedia: "Red social",
+            language: "Idioma",
+            generate: "Generar",
+            download: "Descargar recibo",
+            note: "Su cliente debe agregar este correo electrónico",
+            transaction: "Número de transacción",
+            date: "Fecha"
+        },
+        
+        
+        fr: {
+    title: "Entrez les détails",
+    name: "Nom",
+    client: "Numéro de compte",
+    amount: "Montant",
+    currencySymbol: "Symbole de la monnaie",
+    bank: "Banque",
+    email: "Email",
+    socialMedia: "Réseau social",
+    language: "Langue",
+    generate: "Générer",
+    download: "Télécharger le reçu",
+    note: "Votre client doit ajouter cet email",
+    transaction: "Numéro de transaction",
+    date: "Date"
+},
+
+
+de: {
+    title: "Geben Sie die Details ein",
+    name: "Name",
+    client: "Rekeningnummer ",
+    amount: "Betrag",
+    currencySymbol: "Währungssymbol",
+    bank: "Bank",
+    email: "E-Mail",
+    socialMedia: "Soziale Medien",
+    language: "Sprache",
+    generate: "Generieren",
+    download: "Beleg herunterladen",
+    note: "Ihr Kunde sollte diese E-Mail hinzufügen",
+    transaction: "Transaktionsnummer",
+    date: "Datum"
+},
+
+
+
+it: {
+    title: "Inserisci i dettagli",
+    name: "Nome",
+    client: "Numero di conto",
+    amount: "Importo",
+    currencySymbol: "Simbolo della valuta",
+    bank: "Banca",
+    email: "Email",
+    socialMedia: "Social Media",
+    language: "Lingua",
+    generate: "Genera",
+    download: "Scarica ricevuta",
+    note: "Il tuo cliente dovrebbe aggiungere questa email",
+    transaction: "Numero di transazione",
+    date: "Data"
+},
+
+
+
+pt: {
+    title: "Insira os detalhes",
+    name: "Nome",
+    client: "Número de conta",
+    amount: "Valor",
+    currencySymbol: "Símbolo da moeda",
+    bank: "Banco",
+    email: "Email",
+    socialMedia: "Mídia social",
+    language: "Idioma",
+    generate: "Gerar",
+    download: "Baixar recibo",
+    note: "Seu cliente deve adicionar este e-mail",
+    transaction: "Número da transação",
+    date: "Data"
+},
+
+
+
+zh: {
+    title: "输入详细信息",
+    name: "姓名",
+    client: "客户名称",
+    amount: "金额",
+    currencySymbol: "货币符号",
+    bank: "银行",
+    email: "电子邮件",
+    socialMedia: "社交媒体",
+    language: "语言",
+    generate: "生成",
+    download: "下载收据",
+    note: "您的客户应将此电子邮件添加",
+    transaction: "交易号",
+    date: "日期"
+},
+
+
+ru: {
+    title: "Введите данные",
+    name: "Имя",
+    client: "Account number",
+    amount: "Сумма",
+    currencySymbol: "Символ валюты",
+    bank: "Банк",
+    email: "Электронная почта",
+    socialMedia: "Социальные сети",
+    language: "Язык",
+    generate: "Сгенерировать",
+    download: "Скачать квитанцию",
+    note: "Ваш клиент должен добавить этот адрес электронной почты",
+    transaction: "Номер транзакции",
+    date: "Дата"
+},
+
+
+
+ar: {
+    title: "أدخل التفاصيل",
+    name: "الاسم",
+    client: "اسم العميل",
+    amount: "المبلغ",
+    currencySymbol: "رمز العملة",
+    bank: "البنك",
+    email: "البريد الإلكتروني",
+    socialMedia: "وسائل التواصل الاجتماعي",
+    language: "اللغة",
+    generate: "إنشاء",
+    download: "تحميل الإيصال",
+    note: "يجب على عميلك إضافة هذا البريد الإلكتروني",
+    transaction: "رقم المعاملة",
+    date: "التاريخ"
+},
+
+
+ja: {
+    title: "詳細を入力してください",
+    name: "名前",
+    client: "クライアント名",
+    amount: "金額",
+    currencySymbol: "通貨記号",
+    bank: "銀行",
+    email: "メール",
+    socialMedia: "ソーシャルメディア",
+    language: "言語",
+    generate: "生成する",
+    download: "領収書をダウンロード",
+    note: "クライアントはこのメールを追加する必要があります",
+    transaction: "トランザクション番号",
+    date: "日付"
+},
+
+
+
+ko: {
+    title: "세부정보 입력",
+    name: "이름",
+    client: "클라이언트 이름",
+    amount: "금액",
+    currencySymbol: "통화 기호",
+    bank: "은행",
+    email: "이메일",
+    socialMedia: "소셜 미디어",
+    language: "언어",
+    generate: "생성하다",
+    download: "영수증 다운로드",
+    note: "고객이 이 이메일을 추가해야 합니다",
+    transaction: "거래 번호",
+    date: "날짜"
+},
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById('language').value;
+        document.getElementById('formTitle').innerText = translations[lang].title;
+        document.querySelector('label[for="name"]').innerText = translations[lang].name;
+        document.querySelector('label[for="client"]').innerText = translations[lang].client;
+        document.querySelector('label[for="amount"]').innerText = translations[lang].amount;
+        document.querySelector('label[for="currencySymbol"]').innerText = translations[lang].currencySymbol;
+        document.querySelector('label[for="bank"]').innerText = translations[lang].bank;
+        document.querySelector('label[for="email"]').innerText = translations[lang].email;
+        document.querySelector('label[for="socialMedia"]').innerText = translations[lang].socialMedia;
+        document.querySelector('label[for="language"]').innerText = translations[lang].language;
+        document.getElementById('downloadBtn').innerText = translations[lang].download;
+    }
+
+    function generateTransactionNumber() {
+        let transactionNumber = '';
+        for (let i = 0; i < 18; i++) {
+            transactionNumber += Math.floor(Math.random() * 10); // Only numbers
+        }
+        return transactionNumber;
+    }
+
+    function generateInfo() {
+        const name = document.getElementById('name').value;
+        const client = document.getElementById('client').value;
+        const amount = document.getElementById('amount').value;
+        const currencySymbol = document.getElementById('currencySymbol').value;
+        const bank = document.getElementById('bank').value;
+        const email = document.getElementById('email').value;
+        const socialMedia = document.getElementById('socialMedia').value;
+        const transactionNumber = generateTransactionNumber();
+
+        // Get the current date
+        const date = new Date();
+        const formattedDate = `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`;
+
+        const outputBox = document.getElementById('output');
+        outputBox.innerHTML = `
+            <div id="receiptContent">
+            <div class="img">
+            <img src="Dofoto_20241029_183946857.png" alt="logo">
+            </div>
+            <div class="top">
+            <h2>Payment</h2>
+            <p>Processing</p>
+            </div>
+            <div class="line"></div>
+                <table>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].name}:</strong></td>
+                        <td>${name}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].client}:</strong></td>
+                        <td>${client}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].amount}:</strong></td>
+                        <td>${currencySymbol} ${amount}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].bank}:</strong></td>
+                        <td>${bank}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].transaction}:</strong></td>
+                        <td>${transactionNumber}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>${translations[document.getElementById('language').value].date}:</strong></td>
+                        <td>${formattedDate}</td>
+                    </tr>
+                </table>
+                <div class="separator"></div>
+                <div class="note">${translations[document.getElementById('language').value].note} (${email}) to their ${socialMedia} account to confirm payment.</div>
+            </div>
+        `;
+        outputBox.style.display = 'block';
+        document.getElementById('downloadBtn').style.display = 'inline-block'; // Show the download button
+    }
+
+    function downloadReceipt() {
+        html2canvas(document.getElementById('receiptContent')).then(canvas => {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'receipt.png'; // Name of the downloaded file
+            link.click();
+        });
+    }
+</script>
+</body>
+</html>
